@@ -23,7 +23,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
 
   header {
     padding: 24px 20px;
@@ -32,127 +32,128 @@
     position: sticky; top: 0; z-index: 100;
   }
 
-  h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-  h1 span { color: var(--green); font-size: 12px; font-weight: 700; background: var(--green-dim); padding: 2px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 1px; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  h1 span { color: var(--green); font-size: 12px; background: var(--green-dim); padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
 
-  .search-box {
+  .search-container { position: relative; margin-bottom: 16px; }
+  .search-input {
     width: 100%; background: var(--surface2); border: 1px solid var(--border);
     padding: 14px 18px; border-radius: 14px; color: white; font-size: 15px; outline: none;
-    transition: 0.2s; margin-bottom: 16px;
   }
-  .search-box:focus { border-color: var(--blue); box-shadow: 0 0 0 4px var(--blue-dim); }
 
   .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
   .tabs::-webkit-scrollbar { display: none; }
   .tab {
     padding: 8px 18px; background: var(--surface2); border-radius: 20px;
-    font-size: 13px; font-weight: 500; white-space: nowrap; cursor: pointer;
-    color: var(--muted); border: 1px solid transparent; transition: 0.2s;
+    font-size: 13px; white-space: nowrap; cursor: pointer; color: var(--muted); border: 1px solid transparent;
   }
   .tab.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
 
   .list-container { padding: 20px; display: grid; gap: 12px; }
-  
   .line-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 18px; padding: 18px; cursor: pointer; transition: 0.2s;
-    position: relative; overflow: hidden;
+    border-radius: 18px; padding: 18px; cursor: pointer;
   }
-  .line-card:active { transform: scale(0.97); }
-  .line-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-  .line-title { font-weight: 600; font-size: 16px; color: var(--text); }
-  .line-badge { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface2); padding: 3px 8px; border-radius: 6px; color: var(--blue); font-weight: 600; }
-  .line-desc { font-size: 13px; color: var(--muted); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .line-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .line-name { font-weight: 600; font-size: 16px; }
+  .line-badge { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface2); padding: 3px 8px; border-radius: 6px; color: var(--blue); }
+  .line-bairros { font-size: 13px; color: var(--muted); line-height: 1.4; }
 
-  /* Detalhes */
+  /* Detalhes (Expandido) */
   #detail-view {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--bg); z-index: 200; display: none; flex-direction: column;
   }
   #detail-view.active { display: flex; }
-  .nav-bar { padding: 18px 20px; display: flex; align-items: center; gap: 16px; border-bottom: 1px solid var(--border); }
-  .back-btn { background: var(--surface2); border: none; color: white; width: 38px; height: 38px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .detail-header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
+  .btn-back { background: var(--surface2); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; }
 
-  .type-nav { display: flex; padding: 16px 20px; gap: 10px; }
-  .t-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-weight: 600; font-size: 13px; }
-  .t-btn.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px var(--blue-glow); }
+  .toggle-container { display: flex; padding: 15px 20px; gap: 10px; }
+  .btn-toggle { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-weight: 600; }
+  .btn-toggle.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px var(--blue-glow); }
 
-  .stops-scroll { flex: 1; overflow-y: auto; padding: 20px; }
-  .stop-row { display: flex; gap: 18px; }
-  .stop-left { display: flex; flex-direction: column; align-items: center; width: 26px; }
-  .stop-circle { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; background: var(--bg); }
-  .stop-circle.first { border-color: var(--blue); color: var(--blue); box-shadow: 0 0 10px var(--blue-dim); }
-  .stop-circle.last { border-color: var(--green); color: var(--green); box-shadow: 0 0 10px var(--green-dim); }
-  .stop-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 35px; }
-  .stop-content { padding-bottom: 28px; flex: 1; }
-  .stop-name { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
-  .label-destino { font-size: 10px; background: var(--green-dim); color: var(--green); padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 8px; vertical-align: middle; }
+  .stops-list { flex: 1; overflow-y: auto; padding: 20px; }
+  .stop-row { display: flex; gap: 15px; }
+  .stop-left { display: flex; flex-direction: column; align-items: center; width: 24px; }
+  .stop-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; background: var(--bg); }
+  .stop-circle.first { border-color: var(--blue); color: var(--blue); }
+  .stop-circle.last { border-color: var(--green); color: var(--green); }
+  .stop-connector { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 35px; }
+  .stop-body { padding-bottom: 30px; flex: 1; }
+  .stop-parada { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+  .label-destino { font-size: 10px; background: var(--green-dim); color: var(--green); padding: 2px 6px; border-radius: 4px; font-weight: 800; }
   
-  .loading { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+  .error-msg { padding: 40px; text-align: center; color: var(--muted); }
 </style>
 </head>
 <body>
 
 <div id="main-view">
   <header>
-    <h1>Alumar <span>Itinerários</span></h1>
-    <input type="text" class="search-box" id="searchInput" placeholder="Busque por linha ou bairro..." oninput="doSearch(this.value)">
+    <h1>Alumar <span>Logística</span></h1>
+    <div class="search-container">
+      <input type="text" class="search-input" placeholder="Pesquisar linha ou bairro..." oninput="handleSearch(this.value)">
+    </div>
     <div class="tabs">
-      <div class="tab active" onclick="doTab('TODOS')">Todos</div>
-      <div class="tab" onclick="doTab('ADM')">ADM</div>
-      <div class="tab" onclick="doTab('TURNO A')">Turno A</div>
-      <div class="tab" onclick="doTab('TURNO B')">Turno B</div>
-      <div class="tab" onclick="doTab('TURNO C')">Turno C</div>
+      <div class="tab active" onclick="filterTab('TODOS')">Todos</div>
+      <div class="tab" onclick="filterTab('ADM')">ADM</div>
+      <div class="tab" onclick="filterTab('TURNO A')">Turno A</div>
+      <div class="tab" onclick="filterTab('TURNO B')">Turno B</div>
+      <div class="tab" onclick="filterTab('TURNO C')">Turno C</div>
     </div>
   </header>
   <div id="linesList" class="list-container">
-    <div class="loading">Carregando rotas atualizadas...</div>
+    <div class="error-msg">Carregando dados...</div>
   </div>
 </div>
 
 <div id="detail-view">
-  <div class="nav-bar">
-    <button class="back-btn" onclick="closeLine()">✕</button>
+  <div class="detail-header">
+    <button class="btn-back" onclick="closeLine()">✕</button>
     <div>
-      <div id="det-title" style="font-weight: 600; font-size: 16px;">Linha</div>
-      <div id="det-badge" style="font-size: 11px; color: var(--blue); font-weight: 600; text-transform: uppercase;">Turno</div>
+      <div id="det-line" style="font-weight: 600;">Linha</div>
+      <div id="det-turno" style="font-size: 11px; color: var(--blue); font-weight: 600;">TURNO</div>
     </div>
   </div>
-  <div class="type-nav">
-    <button id="b-ida" class="t-btn active" onclick="setTipo('IDA')">SENTIDO ALUMAR</button>
-    <button id="b-volta" class="t-btn" onclick="setTipo('VOLTA')">SENTIDO BAIRRO</button>
+  <div class="toggle-container">
+    <button id="btn-ida" class="btn-toggle active" onclick="setTipo('IDA')">SENTIDO ALUMAR</button>
+    <button id="btn-volta" class="btn-toggle" onclick="setTipo('VOLTA')">SENTIDO BAIRRO</button>
   </div>
-  <div class="stops-scroll" id="stopsList"></div>
+  <div class="stops-list" id="stopsList"></div>
 </div>
 
 <script>
-let RAW = [];
-let GROUPS = [];
-let filterT = 'TODOS';
-let filterS = '';
+let RAW_DATA = [];
+let LINES = [];
+let activeTab = 'TODOS';
+let searchQuery = '';
 let currentLine = null;
 let currentTipo = 'IDA';
 
-// BUSCA O CSV
-async function loadData() {
+// 1. CARREGAR CSV COM SUPORTE A ACENTOS (ISO-8859-1 / Windows-1252)
+async function loadCSV() {
   try {
-    // Adicionamos um timestamp para evitar cache do navegador
-    const resp = await fetch('pontos.csv?v=' + new Date().getTime());
-    if (!resp.ok) throw new Error();
-    const txt = await resp.text();
-    parseCSV(txt);
+    const response = await fetch('pontos.csv');
+    if (!response.ok) throw new Error();
+    
+    // Aqui está o segredo para os acentos: ler como arrayBuffer e decodificar
+    const buffer = await response.arrayBuffer();
+    const decoder = new TextDecoder('iso-8859-1'); // Formato padrão do Excel Brasileiro
+    const csvText = decoder.decode(buffer);
+    
+    parseCSV(csvText);
   } catch (e) {
-    document.getElementById('linesList').innerHTML = `<div class="loading" style="color:#ff6b6b">Erro: O arquivo pontos.csv não foi encontrado.<br><small>Se estiver testando localmente, use o GitHub Pages.</small></div>`;
+    document.getElementById('linesList').innerHTML = `<div class="error-msg" style="color:#ff6b6b">Erro ao carregar pontos.csv. Certifique-se que o arquivo está na pasta e você está usando o GitHub Pages.</div>`;
   }
 }
 
-function parseCSV(txt) {
-  const lines = txt.split(/\r?\n/);
-  RAW = [];
-  for (let i = 1; i < lines.length; i++) {
-    const cols = lines[i].split(',');
+function parseCSV(text) {
+  const rows = text.split(/\r?\n/);
+  RAW_DATA = [];
+  for (let i = 1; i < rows.length; i++) {
+    const cols = rows[i].split(',');
     if (cols.length >= 6) {
-      RAW.push({
+      RAW_DATA.push({
         turno: cols[0].trim(),
         linha: cols[1].trim(),
         tipo: cols[2].trim().toUpperCase(),
@@ -162,47 +163,48 @@ function parseCSV(txt) {
       });
     }
   }
-  groupData();
-  render();
+  processData();
+  renderLines();
 }
 
-function groupData() {
-  const m = {};
-  RAW.forEach(r => {
-    const k = `${r.turno}|${r.linha}`;
-    if (!m[k]) m[k] = { turno: r.turno, linha: r.linha, stops: {}, bairros: new Set() };
-    if (!m[k].stops[r.tipo]) m[k].stops[r.tipo] = [];
-    m[k].stops[r.tipo].push(r);
-    m[k].bairros.add(r.bairro);
+function processData() {
+  const map = {};
+  RAW_DATA.forEach(r => {
+    const key = `${r.turno}|${r.linha}`;
+    if (!map[key]) map[key] = { turno: r.turno, linha: r.linha, stops: {}, bairros: new Set() };
+    if (!map[key].stops[r.tipo]) map[key].stops[r.tipo] = [];
+    map[key].stops[r.tipo].push(r);
+    map[key].bairros.add(r.bairro);
   });
-  GROUPS = Object.values(m);
+  LINES = Object.values(map);
 }
 
-function render() {
+function renderLines() {
   const container = document.getElementById('linesList');
-  const filtered = GROUPS.filter(g => {
-    const tMatch = filterT === 'TODOS' || g.turno === filterT;
-    const sMatch = g.linha.toLowerCase().includes(filterS.toLowerCase()) || 
-                   Array.from(g.bairros).join(' ').toLowerCase().includes(filterS.toLowerCase());
-    return tMatch && sMatch;
+  const filtered = LINES.filter(l => {
+    const mTab = activeTab === 'TODOS' || l.turno === activeTab;
+    const mSearch = l.linha.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    Array.from(l.bairros).join(' ').toLowerCase().includes(searchQuery.toLowerCase());
+    return mTab && mSearch;
   });
 
-  container.innerHTML = filtered.map(g => `
-    <div class="line-card" onclick="openLine('${g.turno}|${g.linha}')">
-      <div class="line-card-header">
-        <div class="line-title">${g.linha}</div>
-        <div class="line-badge">${g.turno}</div>
+  container.innerHTML = filtered.map(l => `
+    <div class="line-card" onclick="openLine('${l.turno}|${l.linha}')">
+      <div class="line-header">
+        <div class="line-name">${l.linha}</div>
+        <div class="line-badge">${l.turno}</div>
       </div>
-      <div class="line-desc">${Array.from(g.bairros).join(' • ')}</div>
+      <div class="line-bairros">${Array.from(l.bairros).join(' • ')}</div>
     </div>
   `).join('');
 }
 
+// 2. FUNÇÕES DE EXPANDIR (DETALHES)
 function openLine(id) {
-  currentLine = GROUPS.find(g => `${g.turno}|${g.linha}` === id);
+  currentLine = LINES.find(l => `${l.turno}|${l.linha}` === id);
   currentTipo = 'IDA';
-  document.getElementById('det-title').innerText = currentLine.linha;
-  document.getElementById('det-badge').innerText = currentLine.turno;
+  document.getElementById('det-line').innerText = currentLine.linha;
+  document.getElementById('det-turno').innerText = currentLine.turno;
   document.getElementById('detail-view').classList.add('active');
   renderStops();
 }
@@ -214,39 +216,40 @@ function renderStops() {
   container.innerHTML = list.map((s, i) => {
     const isFirst = i === 0;
     const isLast = i === list.length - 1;
-    let tag = isLast ? (currentTipo === 'IDA' ? '<span class="label-destino">FÁBRICA</span>' : '<span class="label-destino">RESIDÊNCIA</span>') : '';
+    let label = isLast ? (currentTipo === 'IDA' ? '<span class="label-destino">FÁBRICA</span>' : '<span class="label-destino">RESIDÊNCIA</span>') : '';
 
     return `
       <div class="stop-row">
         <div class="stop-left">
           <div class="stop-circle ${isFirst?'first':isLast?'last':''}">${isFirst?'●':isLast?'◉':String(i+1).padStart(2,'0')}</div>
-          ${!isLast ? '<div class="stop-line"></div>' : ''}
+          ${!isLast ? '<div class="stop-connector"></div>' : ''}
         </div>
-        <div class="stop-content">
-          <div class="stop-name">${toCase(s.parada)} ${tag}</div>
-          <div style="font-size:13px; color:var(--muted)">${toCase(s.ponto)}</div>
-          <div style="font-size:11px; color:var(--hint); text-transform:uppercase; margin-top:2px;">${toCase(s.bairro)}</div>
+        <div class="stop-body">
+          <div class="stop-parada">${toTitle(s.parada)} ${label}</div>
+          <div style="font-size:13px; color:var(--muted)">${toTitle(s.ponto)}</div>
+          <div style="font-size:11px; color:var(--hint); text-transform:uppercase; margin-top:2px;">${toTitle(s.bairro)}</div>
         </div>
       </div>`;
   }).join('');
 }
 
+// 3. CONTROLES
 function setTipo(t) {
   currentTipo = t;
-  document.getElementById('b-ida').classList.toggle('active', t === 'IDA');
-  document.getElementById('b-volta').classList.toggle('active', t === 'VOLTA');
+  document.getElementById('btn-ida').classList.toggle('active', t === 'IDA');
+  document.getElementById('btn-volta').classList.toggle('active', t === 'VOLTA');
   renderStops();
 }
-function doSearch(v) { filterS = v; render(); }
-function doTab(t) {
-  filterT = t;
-  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.innerText.toUpperCase() === t));
-  render();
+function handleSearch(v) { searchQuery = v; renderLines(); }
+function filterTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.innerText.toUpperCase() === tab));
+  renderLines();
 }
 function closeLine() { document.getElementById('detail-view').classList.remove('active'); }
-function toCase(s) { return s.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase()); }
+function toTitle(s) { return s.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase()); }
 
-window.onload = loadData;
+window.onload = loadCSV;
 </script>
 </body>
 </html>
