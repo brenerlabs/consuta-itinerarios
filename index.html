@@ -1,145 +1,727 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alumar Fretado - Busca</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        body { background-color: #0b1120; color: #f8fafc; font-family: sans-serif; }
-        .glass-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .line-indicator { border-left: 2px solid #334155; position: relative; }
-        .stop-dot { position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 2px solid #0b1120; }
-        .btn-active { background-color: #2563eb !important; color: white; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alumar Fretado</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222536;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0f0f5;
+    --muted: #8b8fa8;
+    --hint: #555870;
+    --blue: #4f8ef7;
+    --blue-dim: rgba(79,142,247,0.12);
+    --blue-glow: rgba(79,142,247,0.25);
+    --green: #3ecf7a;
+    --green-dim: rgba(62,207,122,0.12);
+    --amber: #f5a623;
+    --amber-dim: rgba(245,166,35,0.12);
+    --pink: #f76fa0;
+    --pink-dim: rgba(247,111,160,0.12);
+    --coral: #ff6b4a;
+    --coral-dim: rgba(255,107,74,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* LAYOUT */
+  .app { display: flex; flex-direction: column; min-height: 100vh; max-width: 480px; margin: 0 auto; }
+
+  /* HEADER */
+  .header {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 100;
+    background: var(--bg);
+    backdrop-filter: blur(12px);
+  }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .logo { width: 36px; height: 36px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo svg { width: 20px; height: 20px; fill: none; stroke: white; stroke-width: 2; stroke-linecap: round; }
+  .logo-text h1 { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo-text p { font-size: 12px; color: var(--muted); }
+
+  /* SEARCH */
+  .search-wrap { position: relative; }
+  .search-wrap input {
+    width: 100%; background: var(--surface); border: 1px solid var(--border2);
+    border-radius: var(--radius); padding: 11px 16px 11px 42px;
+    color: var(--text); font-family: inherit; font-size: 14px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .search-wrap input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-glow); }
+  .search-wrap input::placeholder { color: var(--hint); }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--hint); pointer-events: none; }
+  .search-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: var(--border2); border: none; color: var(--muted); cursor: pointer; border-radius: 50%; width: 20px; height: 20px; font-size: 12px; display: none; align-items: center; justify-content: center; }
+  .search-clear.visible { display: flex; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 6px; padding: 16px 20px 0; overflow-x: auto; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border2); background: transparent; color: var(--muted);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); border-color: var(--border2); background: var(--surface); }
+  .tab.active { background: var(--blue); border-color: var(--blue); color: white; }
+  .tab.tab-adm.active { background: var(--blue); border-color: var(--blue); }
+  .tab.tab-a.active { background: var(--green); border-color: var(--green); color: #0f1117; }
+  .tab.tab-b.active { background: var(--amber); border-color: var(--amber); color: #0f1117; }
+  .tab.tab-c.active { background: var(--pink); border-color: var(--pink); color: white; }
+
+  /* MAIN CONTENT */
+  .content { flex: 1; padding: 16px 20px; }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .section-title { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.8px; text-transform: uppercase; }
+  .count-badge { font-size: 11px; color: var(--hint); font-family: 'DM Mono', monospace; }
+
+  /* LINE CARDS */
+  .line-list { display: flex; flex-direction: column; gap: 8px; }
+  .line-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 14px 16px;
+    cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 12px;
+  }
+  .line-card:hover { background: var(--surface2); border-color: var(--border2); transform: translateY(-1px); }
+  .line-icon {
+    width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; font-family: 'DM Mono', monospace;
+  }
+  .line-icon.adm { background: var(--blue-dim); color: var(--blue); }
+  .line-icon.turno-a { background: var(--green-dim); color: var(--green); }
+  .line-icon.turno-b { background: var(--amber-dim); color: var(--amber); }
+  .line-icon.turno-c { background: var(--pink-dim); color: var(--pink); }
+  .line-info { flex: 1; min-width: 0; }
+  .line-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .line-meta { font-size: 12px; color: var(--muted); }
+  .line-arrow { color: var(--hint); font-size: 18px; flex-shrink: 0; }
+
+  /* SEARCH RESULTS */
+  .search-result-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px 14px; cursor: pointer; transition: all 0.15s; margin-bottom: 8px;
+    display: flex; align-items: flex-start; gap: 10px;
+  }
+  .search-result-item:hover { background: var(--surface2); border-color: var(--border2); }
+  .result-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); flex-shrink: 0; margin-top: 5px; }
+  .result-info { flex: 1; }
+  .result-stop { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .result-line { font-size: 12px; color: var(--muted); }
+  .result-badge { font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 10px; margin-left: 6px; }
+  .result-badge.adm { background: var(--blue-dim); color: var(--blue); }
+  .result-badge.turno-a { background: var(--green-dim); color: var(--green); }
+  .result-badge.turno-b { background: var(--amber-dim); color: var(--amber); }
+  .result-badge.turno-c { background: var(--pink-dim); color: var(--pink); }
+
+  /* DETAIL VIEW */
+  .detail-view { display: none; }
+  .detail-view.active { display: block; }
+  .main-view { display: block; }
+  .main-view.hidden { display: none; }
+
+  .back-btn {
+    display: flex; align-items: center; gap: 6px; background: none; border: none;
+    color: var(--blue); font-family: inherit; font-size: 14px; cursor: pointer;
+    padding: 0; margin-bottom: 16px; font-weight: 500;
+  }
+  .back-btn:hover { color: #7aabf9; }
+
+  .detail-header { margin-bottom: 20px; }
+  .detail-turno-badge {
+    display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px;
+    border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px;
+  }
+  .detail-turno-badge.adm { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(79,142,247,0.2); }
+  .detail-turno-badge.turno-a { background: var(--green-dim); color: var(--green); border: 1px solid rgba(62,207,122,0.2); }
+  .detail-turno-badge.turno-b { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+  .detail-turno-badge.turno-c { background: var(--pink-dim); color: var(--pink); border: 1px solid rgba(247,111,160,0.2); }
+
+  .detail-title { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .detail-subtitle { font-size: 13px; color: var(--muted); }
+
+  /* TRIP TYPE TOGGLE */
+  .trip-toggle { display: flex; gap: 6px; margin-bottom: 20px; }
+  .trip-btn {
+    flex: 1; padding: 9px 0; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500;
+    border: 1px solid var(--border2); background: transparent; color: var(--muted);
+    cursor: pointer; transition: all 0.15s; font-family: inherit;
+  }
+  .trip-btn.active { background: var(--surface2); border-color: var(--blue); color: var(--text); }
+
+  /* STOPS TIMELINE */
+  .stops-timeline { position: relative; }
+  .stop-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 0; }
+  .stop-left { display: flex; flex-direction: column; align-items: center; width: 28px; flex-shrink: 0; }
+  .stop-circle {
+    width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 11px; font-weight: 600; font-family: 'DM Mono', monospace;
+    flex-shrink: 0; border: 1.5px solid var(--border2); background: var(--surface); color: var(--muted);
+    z-index: 1; position: relative;
+  }
+  .stop-circle.first { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
+  .stop-circle.last { background: var(--coral-dim); border-color: var(--coral); color: var(--coral); }
+  .stop-circle.factory { background: var(--blue); border-color: var(--blue); color: white; font-size: 14px; }
+  .stop-connector { width: 2px; background: var(--border2); flex: 1; min-height: 18px; }
+  .stop-body { flex: 1; padding-bottom: 16px; padding-top: 4px; }
+  .stop-name { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .stop-detail { font-size: 12px; color: var(--muted); }
+  .stop-bairro { font-size: 11px; color: var(--hint); margin-top: 2px; font-family: 'DM Mono', monospace; letter-spacing: 0.3px; }
+
+  /* FACTORY ROW */
+  .factory-row { background: var(--blue-dim); border: 1px solid rgba(79,142,247,0.2); border-radius: var(--radius); padding: 14px 16px; margin-top: 4px; display: flex; align-items: center; gap: 12px; }
+  .factory-icon { font-size: 22px; }
+  .factory-text h3 { font-size: 14px; font-weight: 600; color: var(--blue); }
+  .factory-text p { font-size: 12px; color: var(--muted); }
+
+  /* EMPTY / NO RESULTS */
+  .empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+  .empty p { font-size: 14px; }
+
+  /* HIGHLIGHT */
+  mark { background: rgba(79,142,247,0.25); color: var(--blue); border-radius: 2px; padding: 0 1px; }
+
+  /* SCROLL */
+  .content { overflow-y: auto; }
+
+  /* MOBILE SAFE */
+  @media (max-width: 480px) {
+    .app { max-width: 100%; }
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .line-card, .search-result-item { animation: fadeIn 0.2s ease both; }
+</style>
 </head>
-<body class="p-4 md:p-8">
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">
+        <svg viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+      </div>
+      <div class="logo-text">
+        <h1>Alumar Fretado</h1>
+        <p>Encontre seu ônibus</p>
+      </div>
+    </div>
+    <div class="search-wrap">
+      <span class="search-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </span>
+      <input id="search-input" type="text" placeholder="Buscar por bairro ou parada…" autocomplete="off" oninput="handleSearch(this.value)">
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">✕</button>
+    </div>
+  </div>
 
-    <div class="max-w-2xl mx-auto">
-        <div class="flex items-center gap-4 mb-6">
-            <div class="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-900/20">
-                <i class="fa-solid fa-paper-plane text-white text-xl"></i>
-            </div>
-            <div>
-                <h1 class="text-xl font-bold uppercase tracking-tight">Alumar Fretado</h1>
-                <p class="text-gray-400 text-sm">Encontre seu ônibus</p>
-            </div>
+  <div class="tabs" id="tabs-bar">
+    <button class="tab active tab-all" onclick="filterTab('TODOS')">Todos</button>
+    <button class="tab tab-adm" onclick="filterTab('ADM')">ADM</button>
+    <button class="tab tab-a" onclick="filterTab('TURNO A')">Turno A</button>
+    <button class="tab tab-b" onclick="filterTab('TURNO B')">Turno B</button>
+    <button class="tab tab-c" onclick="filterTab('TURNO C')">Turno C</button>
+  </div>
+
+  <div class="content">
+    <div class="main-view" id="main-view">
+      <div id="search-results-section" style="display:none">
+        <div class="section-header">
+          <span class="section-title">Resultados</span>
+          <span class="count-badge" id="results-count"></span>
         </div>
-
-        <div class="relative mb-6">
-            <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-500"></i>
-            <input type="text" id="searchInput" placeholder="Busque por rua, bairro ou linha (ex: Cohama)..." 
-                class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+        <div id="search-results-list"></div>
+      </div>
+      <div id="lines-section">
+        <div class="section-header" style="margin-top:16px">
+          <span class="section-title" id="lines-section-title">Linhas & Rotas</span>
+          <span class="count-badge" id="lines-count"></span>
         </div>
-
-        <div class="flex gap-2 mb-8 overflow-x-auto pb-2" id="filterContainer">
-            <button onclick="filterType('Todos', this)" class="btn-filter btn-active bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Todos</button>
-            <button onclick="filterType('ADM', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">ADM</button>
-            <button onclick="filterType('TURNO A', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Turno A</button>
-            <button onclick="filterType('TURNO B', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Turno B</button>
-            <button onclick="filterType('TURNO C', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Turno C</button>
-        </div>
-
-        <div id="resultsArea" class="space-y-6">
-            </div>
+        <div class="line-list" id="lines-list"></div>
+      </div>
     </div>
 
-    <script>
-        // DADOS CONSOLIDADOS DO SEU EXCEL
-        const data = [
-            {
-                tipo: "ADM",
-                linha: "LINHA 03",
-                itinerario: "COHAMA · RESIDENCIAL ARARAS · RESIDENCIAL PINHEIROS · MARANHÃO NOVO · IPASE",
-                pontos: [
-                    { nome: "Cond. Ditalli", rua: "Rua do Aririzal", bairro: "Cohama" },
-                    { nome: "Cond. Green Blue", rua: "Rua do Aririzal", bairro: "Cohama" },
-                    { nome: "Cond. Village das Palmeiras", rua: "Rua do Aririzal", bairro: "Cohama" },
-                    { nome: "Dimensão Engenharia", rua: "Rua do Aririzal", bairro: "Cohama" },
-                    { nome: "Comercial Padilha", rua: "Avenida Um", bairro: "Residencial Araras" }
-                ]
-            },
-            {
-                tipo: "TURNO A",
-                linha: "ROTA 01",
-                itinerario: "SÃO CRISTÓVÃO · CIDADE OPERÁRIA",
-                pontos: [
-                    { nome: "Posto Shell", rua: "Av. Guajajaras", bairro: "São Cristóvão" },
-                    { nome: "Supermercado Caminho", rua: "Av. Principal", bairro: "Cidade Operária" }
-                ]
-            }
-            // Adicione mais rotas seguindo este padrão conforme necessário
-        ];
+    <div class="detail-view" id="detail-view">
+      <button class="back-btn" onclick="goBack()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+        Voltar
+      </button>
+      <div class="detail-header">
+        <div class="detail-turno-badge" id="detail-badge"></div>
+        <div class="detail-title" id="detail-title"></div>
+        <div class="detail-subtitle" id="detail-subtitle"></div>
+      </div>
+      <div class="trip-toggle" id="trip-toggle"></div>
+      <div class="stops-timeline" id="stops-list"></div>
+      <div class="factory-row">
+        <div class="factory-icon">🏭</div>
+        <div class="factory-text">
+          <h3>Fábrica Alumar</h3>
+          <p>Destino final — Portaria Principal</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        let currentFilter = 'Todos';
+<script>
+// ============================================================
+// BASE DE DADOS — cole seus dados CSV aqui
+// Formato: { turno, linha, tipo, bairro, ponto, parada }
+// ============================================================
+const RAW_DATA = [
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"RIBAMAR",ponto:"AV. GONÇALVES DIAS",parada:"CAMPINA – QUADRA DE ESPORTE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"RIBAMAR",ponto:"AV. GONÇALVES DIAS",parada:"PRAÇA DO CEMITÉRIO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"CRUZEIRO",ponto:"AV. GONÇALVES DIAS",parada:"LOJAS SANTA MARIA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"MOROPOIA",ponto:"AV. GONÇALVES DIAS",parada:"FAROL – MARANHENSE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"VILA DOUTOR JULINHO",ponto:"EST. DE RIBAMAR - MA 201",parada:"OUTEIRO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"VILA DOUTOR JULINHO",ponto:"EST. DE RIBAMAR - MA 201",parada:"LICEU RIBAMARENSE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"VILA DOUTOR JULINHO",ponto:"EST. DE RIBAMAR - MA 201",parada:"PRAÇA VERDE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"PAU DEITADO",ponto:"AV. PRINCIPAL",parada:"IGREJA CATOLICA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"PIÇARREIRA",ponto:"EST. DE RIBAMAR - MA 201",parada:"POSTO MARACAJÁ"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"PIÇARREIRA",ponto:"EST. DE RIBAMAR - MA 201",parada:"PARADA OBRIGATORIA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"PIÇARREIRA",ponto:"EST. DE RIBAMAR - MA 201",parada:"CONDOMINIO MARGARETH ALENCAR"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"PINDAI",ponto:"EST. DE RIBAMAR - MA 201",parada:"COMERCIAL LELECA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"PORTAL DO PAÇO",ponto:"EST. DE RIBAMAR - MA 201",parada:"POSTO OTON"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"RIO SÃO JOAO",ponto:"EST. DE RIBAMAR - MA 201",parada:"PORTAL DO PAÇO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"LARANJAL",ponto:"EST. DE RIBAMAR - MA 201",parada:"IGREJA DO RIO SÃO JOÃO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"IDA",bairro:"LARANJAL",ponto:"EST. DE RIBAMAR - MA 201",parada:"ENTRADA DO CONDOMINIO TRACOÁ"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"RIO SÃO JOAO",ponto:"EST. DE RIBAMAR - MA 201",parada:"ENTRADA DO CONDOMINIO TRACOÁ"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"RIO SÃO JOAO",ponto:"EST. DE RIBAMAR - MA 201",parada:"IGREJA DO RIO SÃO JOÃO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"RIO SÃO JOAO",ponto:"EST. DE RIBAMAR - MA 201",parada:"PORTAL DO PAÇO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"PORTAL DO PAÇO",ponto:"EST. DE RIBAMAR - MA 201",parada:"POSTO OTON"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"PINDAI",ponto:"EST. DE RIBAMAR - MA 201",parada:"COMERCIAL LELECA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"PIÇARREIRA",ponto:"EST. DE RIBAMAR - MA 201",parada:"CONDOMINIO MARGARETH ALENCAR"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"PIÇARREIRA",ponto:"EST. DE RIBAMAR - MA 201",parada:"PARADA OBRIGATORIA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"PIÇARREIRA",ponto:"EST. DE RIBAMAR - MA 201",parada:"POSTO MARACAJÁ"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"PAU DEITADO",ponto:"AV. PRINCIPAL",parada:"IGREJA CATOLICA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"VILA DOUTOR JULINHO",ponto:"EST. DE RIBAMAR - MA 201",parada:"PRAÇA VERDE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"VILA DOUTOR JULINHO",ponto:"EST. DE RIBAMAR - MA 201",parada:"LICEU RIBAMARENSE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"VILA DOUTOR JULINHO",ponto:"EST. DE RIBAMAR - MA 201",parada:"OUTEIRO"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"MOROPOIA",ponto:"AV. GONÇALVES DIAS",parada:"FAROL – MARANHENSE"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"CRUZEIRO",ponto:"AV. GONÇALVES DIAS",parada:"LOJAS SANTA MARIA"},
+  {turno:"ADM",linha:"LINHA 01",tipo:"VOLTA",bairro:"RIBAMAR",ponto:"AV. GONÇALVES DIAS",parada:"PRAÇA DO CEMITÉRIO"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"COHASERMA",ponto:"R. 09",parada:"PONTO FINAL COHAMA"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"COHASERMA",ponto:"AV. BETA",parada:"PANIFICADORA BACUTE"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"PARQUE ATENAS",ponto:"AV. BETA",parada:"ATHENAS PARK II"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"ALTO DO CALHAU",ponto:"R. 06",parada:"EM FRENTE A CASA 17"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"ALTO DO CALHAU",ponto:"R. 06",parada:"COND. SPACE"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"ALTO DO CALHAU",ponto:"R. UM",parada:"COMERCIAL VEM QUE TEM"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"R. 10",parada:"EM FRENTE A CASA 21"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"R. 10",parada:"BENDITO BAR - ATRAS DA CAEMA"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"R. UM",parada:"BAR NOSSO CANTO"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"R. DO ARAME",parada:"EM FRENTE AO FRIO FORT"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"R. DO ARAME",parada:"PRAÇA DO LETRADO"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"VIVA VINHAIS",parada:"EM FRENTE AO COLÉGIO"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"VINHAIS",ponto:"VIVA VINHAIS",parada:"EM FRENTE A PAPELARIA VERTGÊ"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"RECANTO VINHAIS",ponto:"AV. ANTARES",parada:"SHOPPING DA LIMPEZA"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"RECANTO VINHAIS",ponto:"AV. ANTARES",parada:"GALETERIA ANTARES"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"RECANTO VINHAIS",ponto:"AV. ANTARES",parada:"ESQUINA DA RUA 03"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"IDA",bairro:"RECANTO VINHAIS",ponto:"FINAL DA R. 03",parada:"CASA 20"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"RECANTO VINHAIS",ponto:"FINAL DA R. 03",parada:"CASA 20"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"RECANTO VINHAIS",ponto:"AV. ANTARES",parada:"ESQUINA DA RUA 03"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"RECANTO VINHAIS",ponto:"EST. NOVA DO VINHAIS",parada:"GALETERIA ANTARES"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"RECANTO VINHAIS",ponto:"EST. NOVA DO VINHAIS",parada:"SHOPPING DA LIMPEZA"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"RECANTO VINHAIS",ponto:"EST. NOVA DO VINHAIS",parada:"PIZZARIA BELLA NAPOLI"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"RECANTO VINHAIS",ponto:"R. URANO",parada:"EM FRENTE A PAPELARIA VERTGÊ"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"VINHAIS",ponto:"AV. ANTARES",parada:"PRAÇA DO LETRADO"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"VINHAIS",ponto:"AV. 01",parada:"EM FRENTE AO FRIO FORT"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"VINHAIS",ponto:"R. HEITOR AUGUSTO",parada:"BAR NOSSO CANTO"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"VINHAIS",ponto:"R. 10",parada:"BENDITO BAR - ATRAS DA CAEMA"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"VINHAIS",ponto:"R. 01",parada:"EM FRENTE A CASA 21"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"PARK ATENAS",ponto:"R. DUQUE BARCELAR",parada:"COMERCIAL VEM QUE TEM"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"PARK ATENAS",ponto:"AV. BETA",parada:"EM FRENTE A CASA 17"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"COHAMA",ponto:"AV. BETA",parada:"EM FRENTE AOS LANCHES"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"COHAMA",ponto:"R. OITO",parada:"ATHENAS PARK II"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"COHAMA",ponto:"AV. BETA",parada:"PANIFICADORA BACUTE"},
+  {turno:"ADM",linha:"LINHA 02",tipo:"VOLTA",bairro:"COHAMA",ponto:"R. 09",parada:"PONTO FINAL COHAMA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"COND. DITALLI"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"COND. GREEN BLUE"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"COND. VILLAGE DAS PALMEIRAS"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"DIMENSÃO ENGENHARIA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL ARARAS",ponto:"AVENIDA UM",parada:"COMERCIAL PADILHA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL ARARAS",ponto:"RUA JACKSON LAGO",parada:"RUA JACKSON LAGO COM BOA ESPERANÇA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"TRAVESSA BOA ESPERANÇA",parada:"OFICINA SERGLAUTO CAR"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"TRAVESSA BOA ESPERANÇA",parada:"CONDOMINIO BOA ESPERANÇA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"RUA BOA ESPERANÇA",parada:"CONDOMINIO GRAPHOS"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"RUA BOA ESPERANÇA",parada:"CONDOMINIO ZEUS"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"RUA BOA ESPERANÇA",parada:"MERCADINHO PÃO E CIA ENTRADA DA AV. O2"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"AVENIDA UM",parada:"DEPOSITO DE ÁGUA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"RESIDENCIAL PINHEIROS",ponto:"AVENIDA UM",parada:"PANIFICADORA PINHEIRO"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"MARANHÃO NOVO",ponto:"DANIEL DE LA TOUCHE",parada:"ESCOLA ADVENTISTA BORRACHARIA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"MARANHÃO NOVO",ponto:"DANIEL DE LA TOUCHE",parada:"SHOPPING DA ILHA SAÍDA DO CONDOMÍNIO"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"IDA",bairro:"IPASE",ponto:"DANIEL DE LA TOUCHE",parada:"SMTT"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"IPASE",ponto:"DANIEL DE LA TOUCHE",parada:"SMTT"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"MARANHÃO NOVO",ponto:"DANIEL DE LA TOUCHE",parada:"SHOPPING DA ILHA SAÍDA DO CONDOMÍNIO"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"MARANHÃO NOVO",ponto:"DANIEL DE LA TOUCHE",parada:"ESCOLA ADVENTISTA BORRACHARIA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"AVENIDA UM",parada:"PANIFICADORA PINHEIRO"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"AVENIDA UM",parada:"DEPOSITO DE ÁGUA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"RUA BOA ESPERANÇA",parada:"MERCADINHO PÃO E CIA ENTRADA DA AV. O2"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"RUA BOA ESPERANÇA",parada:"CONDOMINIO ZEUS"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"RUA BOA ESPERANÇA",parada:"CONDOMINIO GRAPHOS"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"TRAVESSA BOA ESPERANÇA",parada:"CONDOMINIO BOA ESPERANÇA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL PINHEIROS",ponto:"TRAVESSA BOA ESPERANÇA",parada:"OFICINA SERGLAUTO CAR"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL ARARAS",ponto:"RUA JACKSON LAGO",parada:"RUA JACKSON LAGO COM BOA ESPERANÇA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"RESIDENCIAL ARARAS",ponto:"AVENIDA UM",parada:"COMERCIAL PADILHA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"DIMENSÃO ENGENHARIA"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"COND. VILLAGE DAS PALMEIRAS"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"COND. GREEN BLUE"},
+  {turno:"ADM",linha:"LINHA 03",tipo:"VOLTA",bairro:"COHAMA",ponto:"RUA DO ARIRIZAL",parada:"COND. DITALLI"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"RAPOSA",ponto:"CENTRO",parada:"RUA DA LAVANDERIA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"RAPOSA",ponto:"MA-203",parada:"PRAÇA DO ARMAZÉM PARAÍBA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"RAPOSA",ponto:"MA-203",parada:"PRAÇA DEPOIS DO CEMITÉRIO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"RAPOSA",ponto:"MA-203",parada:"SAM MOTOS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"RAPOSA",ponto:"MA-203",parada:"POSTO DE SAÚDE"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"PIRÂMIDE",ponto:"MA-203",parada:"COMERCIAL MACHADO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"PIRÂMIDE",ponto:"MA-203",parada:"POSTO DE GASOLINA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"ARAÇAGY",ponto:"ESTRADA DA MAIOBA",parada:"EM FRENTE AO POSTO DE COMBUSTIVEL"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"PRIMAVERA",ponto:"AVENIDA CONTORNO SUL",parada:"ECO PONTO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"HAMBURGUERIA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"MARANHÃO OVOS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"CASA DO TEMPERO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"DROGARIA MATOS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"OTICA ROSE"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"PZZARIA TIO TOMATE"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"COHATRAC",ponto:"AVENIDA PRINCIPAL",parada:"CONSTRUFORT"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"PANIFICADORA DELICIAS DE MASSAS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"ESTUDIO MARA OLIVEIRA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"ULTRA GÁS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"PONTO FINAL DO MARGARIDA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"FORQUILHA",ponto:"ESTRADA DA MAIOBA",parada:"LAVA JATO NO GRAU"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"FORQUILHA",ponto:"ESTRADA DA MAIOBA",parada:"EM FRENTE A 1001"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"IDA",bairro:"FORQUILHA",ponto:"ESTRADA DA MAIOBA",parada:"CLINICA DO TRABALHADOR"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"FORQUILHA",ponto:"ESTRADA DA MAIOBA",parada:"CLINICA DO TRABALHADOR"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"FORQUILHA",ponto:"ESTRADA DA MAIOBA",parada:"EM FRENTE A 1001"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"FORQUILHA",ponto:"ESTRADA DA MAIOBA",parada:"LAVA JATO NO GRAU"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"PONTO FINAL DO MARGARIDA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"ULTRA GÁS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"ESTUDIO MARA OLIVEIRA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"JARDIM DAS MARGARIDAS",ponto:"AV. PRINCIPAL",parada:"PANIFICADORA DELICIAS DE MASSAS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"CONSTRUFORT"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"PZZARIA TIO TOMATE"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"OTICA ROSE"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"DROGARIA MATOS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"CASA DO TEMPERO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"MARANHÃO OVOS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"COHATRAC",ponto:"AVENIDA CONTORNO SUL",parada:"HAMBURGUERIA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"PRIMAVERA",ponto:"AVENIDA PRINCIPAL",parada:"ECO PONTO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"ARAÇAGY",ponto:"ESTRADA DA MAIOBA",parada:"EM FRENTE AO POSTO DE COMBUSTIVEL"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"PIRÂMIDE",ponto:"MA-203",parada:"POSTO DE GASOLINA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"PIRÂMIDE",ponto:"MA-203",parada:"COMERCIAL MACHADO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"RAPOSA",ponto:"MA-203",parada:"POSTO DE SAÚDE"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"RAPOSA",ponto:"MA-203",parada:"SAM MOTOS"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"RAPOSA",ponto:"MA-203",parada:"PRAÇA DEPOIS DO CEMITÉRIO"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"RAPOSA",ponto:"MA-203",parada:"PRAÇA DO ARMAZÉM PARAÍBA"},
+  {turno:"ADM",linha:"LINHA 04",tipo:"VOLTA",bairro:"RAPOSA",ponto:"CENTRO",parada:"RUA DA LAVANDERIA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"BARRAMAR",ponto:"AV. DOS HOLANDESES",parada:"FEST LANCHE"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"QUINTAS DO CALHAU",ponto:"AV. DOS HOLANDESES",parada:"SAL E BRASA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"QUINTAS DO CALHAU",ponto:"AV. DOS HOLANDESES",parada:"PRIMEIRA PARADA DEPOIS DO GOLDEM"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"BANCO DO NORDESTE"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"IBIS HOTEL"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"AABB"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"POSTO PETROBRAS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"NOIVISSIMA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"POSTO SÃO MARCOS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"COND. FAROL DA ILHA/ RIO POTY HOTEL"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"EXTRA-FARMA DEPOIS PETISCALDOS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"PRAÇA DO SOL"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"HOTEL VELEIROS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"PONTA DA AREIA",ponto:"AV. DOS HOLANDESES",parada:"BANCO DO BRASIL PRÓX. MIRANTE"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"SÃO FRANCISCO",ponto:"AV. ANA JANSEN",parada:"FOTO SOMBRA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"IDA",bairro:"SÃO FRANCISCO",ponto:"AV. CASTELO BRANCO",parada:"ANTIGO BRADESCO CABECEIRA DA PONTE"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"SÃO FRANCISCO",ponto:"AV. CASTELO BRANCO",parada:"EM FRENTE A CAIXA ECONÔMICA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"SÃO FRANCISCO",ponto:"AV. CASTELO BRANCO",parada:"PARADA DE ÔNIBUS - PRÓX. IGREJA CATÓLICA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"SÃO FRANCISCO",ponto:"AV. ANA JANSEN",parada:"BANCO DO BRASIL PRÓX. MIRANTE"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"PONTA DAREIA",ponto:"AV. ANA JANSEN",parada:"HOTEL VELEIROS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"CONDOMINIO ACQUABELLE"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"PARADA DE ONIBUS HOTEL PREMIER"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"POSTO SÃO MARCOS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"ENTRADA DO LUZEIROS PARADA DE ONIBUS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"POSTO PETROBRAS"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"AABB"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"IBIS HOTEL"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"SHOPPING DOS COLCHÕES"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"FRIBAL"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"CALHAU",ponto:"AV. DOS HOLANDESES",parada:"GOLDEN SHOPPING"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"QUINTAS DO CALHAU",ponto:"AV. DOS HOLANDESES",parada:"SOL & BRASA"},
+  {turno:"ADM",linha:"LINHA 05",tipo:"VOLTA",bairro:"BARRAMAR",ponto:"AV. DOS HOLANDESES",parada:"FEST LANCHE"},
+];
 
-        function render(filterTerm = "", type = "Todos") {
-            const container = document.getElementById('resultsArea');
-            container.innerHTML = "";
+// ============================================================
+// ESTADO
+// ============================================================
+let activeTab = 'TODOS';
+let searchQuery = '';
+let currentLine = null;
+let currentTipo = 'IDA';
 
-            const filtered = data.filter(item => {
-                const matchType = type === "Todos" || item.tipo === type;
-                const search = filterTerm.toLowerCase();
-                const matchSearch = item.linha.toLowerCase().includes(search) || 
-                                    item.itinerario.toLowerCase().includes(search) ||
-                                    item.pontos.some(p => p.nome.toLowerCase().includes(search) || p.bairro.toLowerCase().includes(search));
-                return matchType && matchSearch;
-            });
+// ============================================================
+// HELPERS
+// ============================================================
+function turnoClass(t) {
+  if (t === 'ADM') return 'adm';
+  if (t === 'TURNO A') return 'turno-a';
+  if (t === 'TURNO B') return 'turno-b';
+  if (t === 'TURNO C') return 'turno-c';
+  return 'adm';
+}
 
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-gray-500">Nenhum ônibus encontrado para sua busca.</div>`;
-                return;
-            }
+function turnoLabel(t) {
+  if (t === 'ADM') return 'ADM';
+  return t;
+}
 
-            filtered.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "glass-card p-6 rounded-3xl transition-all hover:border-blue-500/50";
-                card.innerHTML = `
-                    <div class="mb-6">
-                        <div class="flex justify-between items-start">
-                            <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded-md uppercase">${item.tipo} · ${item.linha.includes('LINHA') ? 'ADM' : 'TURNO'}</span>
-                        </div>
-                        <h2 class="text-2xl font-bold mt-2">${item.linha}</h2>
-                        <p class="text-gray-400 text-[10px] mt-1 uppercase leading-tight tracking-wider">${item.itinerario}</p>
-                    </div>
+function lineIconText(linha) {
+  const m = linha.match(/\d+/);
+  return m ? m[0].padStart(2,'0') : linha.slice(0,2);
+}
 
-                    <div class="flex gap-2 mb-6">
-                        <button class="flex-1 bg-blue-600 text-xs font-bold py-2 rounded-xl">→ Ida (cidade → fábrica)</button>
-                        <button class="flex-1 bg-slate-800 text-xs font-bold py-2 rounded-xl text-gray-400">← Volta (fábrica → cidade)</button>
-                    </div>
-                    
-                    <div class="ml-2 space-y-8 line-indicator">
-                        ${item.pontos.map((p, idx) => `
-                            <div class="pl-6 relative">
-                                <div class="stop-dot"></div>
-                                <div class="absolute -left-8 top-0 text-[10px] font-bold text-gray-600">${(idx + 1).toString().padStart(2, '0')}</div>
-                                <h3 class="text-sm font-semibold">${p.nome}</h3>
-                                <p class="text-gray-500 text-xs">${p.rua}</p>
-                                <p class="text-blue-400/60 text-[10px] uppercase font-bold">${p.bairro}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
+function normalize(s) {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+}
 
-        function filterType(type, btn) {
-            currentFilter = type;
-            document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('btn-active'));
-            btn.classList.add('btn-active');
-            render(document.getElementById('searchInput').value, type);
-        }
+function highlight(text, query) {
+  if (!query) return text;
+  const n = normalize(query);
+  const re = new RegExp('(' + n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+  return text.replace(re, '<mark>$1</mark>');
+}
 
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            render(e.target.value, currentFilter);
-        });
+// ============================================================
+// BUILD LINES INDEX
+// ============================================================
+function buildLines() {
+  const map = {};
+  RAW_DATA.forEach(r => {
+    const key = r.turno + '||' + r.linha;
+    if (!map[key]) {
+      map[key] = { turno: r.turno, linha: r.linha, stops: {}, bairros: new Set() };
+    }
+    if (!map[key].stops[r.tipo]) map[key].stops[r.tipo] = [];
+    map[key].stops[r.tipo].push(r);
+    map[key].bairros.add(r.bairro);
+  });
+  return Object.values(map);
+}
 
-        // Inicializar
-        render();
-    </script>
+const LINES = buildLines();
+
+// ============================================================
+// RENDER LINES LIST
+// ============================================================
+function renderLines() {
+  const list = document.getElementById('lines-list');
+  const countEl = document.getElementById('lines-count');
+  const titleEl = document.getElementById('lines-section-title');
+
+  let filtered = LINES;
+  if (activeTab !== 'TODOS') filtered = filtered.filter(l => l.turno === activeTab);
+
+  titleEl.textContent = activeTab === 'TODOS' ? 'Linhas & Rotas' : (activeTab === 'ADM' ? 'Linhas ADM' : activeTab + ' — Rotas');
+  countEl.textContent = filtered.length + ' ' + (filtered.length === 1 ? 'linha' : 'linhas');
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>Nenhuma linha neste turno</p></div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map((l, i) => {
+    const tiposDisp = Object.keys(l.stops);
+    const totalParadas = Math.max(...tiposDisp.map(t => l.stops[t].length));
+    const bairrosArr = Array.from(l.bairros).slice(0,2).join(', ');
+    const cls = turnoClass(l.turno);
+    return `<div class="line-card" style="animation-delay:${i*30}ms" onclick="openLine('${l.turno}','${l.linha}')">
+      <div class="line-icon ${cls}">${lineIconText(l.linha)}</div>
+      <div class="line-info">
+        <div class="line-name">${l.linha}</div>
+        <div class="line-meta">${totalParadas} paradas · ${bairrosArr}${Array.from(l.bairros).length > 2 ? '…' : ''}</div>
+      </div>
+      <div class="line-arrow">›</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function handleSearch(val) {
+  searchQuery = val.trim();
+  document.getElementById('search-clear').classList.toggle('visible', val.length > 0);
+  const sr = document.getElementById('search-results-section');
+  const ls = document.getElementById('lines-section');
+
+  if (searchQuery.length < 2) {
+    sr.style.display = 'none';
+    ls.style.display = 'block';
+    renderLines();
+    return;
+  }
+
+  sr.style.display = 'block';
+  ls.style.display = 'none';
+
+  const q = normalize(searchQuery);
+  const matches = RAW_DATA.filter(r =>
+    normalize(r.parada).includes(q) ||
+    normalize(r.bairro).includes(q) ||
+    normalize(r.ponto).includes(q) ||
+    normalize(r.linha).includes(q)
+  );
+
+  document.getElementById('results-count').textContent = matches.length + ' resultado' + (matches.length !== 1 ? 's' : '');
+
+  if (matches.length === 0) {
+    document.getElementById('search-results-list').innerHTML =
+      '<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma parada encontrada para "<strong>' + searchQuery + '"</strong></p></div>';
+    return;
+  }
+
+  // Deduplicate by parada+linha+tipo
+  const seen = new Set();
+  const unique = matches.filter(r => {
+    const k = r.parada + r.linha + r.tipo;
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+
+  document.getElementById('search-results-list').innerHTML = unique.slice(0, 30).map((r, i) => {
+    const cls = turnoClass(r.turno);
+    return `<div class="search-result-item" style="animation-delay:${i*20}ms" onclick="openLine('${r.turno}','${r.linha}','${r.tipo}')">
+      <div class="result-dot" style="background:var(--${cls === 'adm' ? 'blue' : cls === 'turno-a' ? 'green' : cls === 'turno-b' ? 'amber' : 'pink'})"></div>
+      <div class="result-info">
+        <div class="result-stop">${highlight(toTitleCase(r.parada), searchQuery)}</div>
+        <div class="result-line">
+          ${highlight(toTitleCase(r.bairro), searchQuery)} · ${r.linha} · ${r.tipo}
+          <span class="result-badge ${cls}">${turnoLabel(r.turno)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  handleSearch('');
+}
+
+function toTitleCase(str) {
+  const minusculas = new Set(['de','da','do','das','dos','e','a','o','as','os','em','na','no','nas','nos','por','para','com','sem']);
+  return str.toLowerCase().split(' ').map((word, i) => {
+    if (!word) return word;
+    if (i > 0 && minusculas.has(word)) return word;
+    return word.replace(/^./, c => c.toLocaleUpperCase('pt-BR'));
+  }).join(' ');
+}
+
+// ============================================================
+// OPEN LINE DETAIL
+// ============================================================
+function openLine(turno, linha, tipo) {
+  currentLine = LINES.find(l => l.turno === turno && l.linha === linha);
+  if (!currentLine) return;
+
+  const tiposDisp = Object.keys(currentLine.stops);
+  currentTipo = tipo && tiposDisp.includes(tipo) ? tipo : tiposDisp[0];
+
+  document.getElementById('main-view').classList.add('hidden');
+  document.getElementById('detail-view').classList.add('active');
+
+  const cls = turnoClass(turno);
+  document.getElementById('detail-badge').className = 'detail-turno-badge ' + cls;
+  document.getElementById('detail-badge').textContent = turnoLabel(turno) + ' · ' + linha;
+  document.getElementById('detail-title').textContent = linha;
+  document.getElementById('detail-subtitle').textContent = Array.from(currentLine.bairros).join(' · ');
+
+  // Trip type toggle
+  const toggleEl = document.getElementById('trip-toggle');
+  if (tiposDisp.length > 1) {
+    toggleEl.innerHTML = tiposDisp.map(t =>
+      `<button class="trip-btn ${t === currentTipo ? 'active' : ''}" onclick="switchTipo('${t}')">${t === 'IDA' ? '→ Ida (cidade → fábrica)' : '← Volta (fábrica → cidade)'}</button>`
+    ).join('');
+    toggleEl.style.display = 'flex';
+  } else {
+    toggleEl.style.display = 'none';
+  }
+
+  renderStops();
+}
+
+function switchTipo(tipo) {
+  currentTipo = tipo;
+  document.querySelectorAll('.trip-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.startsWith(tipo === 'IDA' ? '→' : '←'));
+  });
+  renderStops();
+}
+
+function renderStops() {
+  const stops = currentLine.stops[currentTipo] || [];
+  const el = document.getElementById('stops-list');
+
+  if (stops.length === 0) {
+    el.innerHTML = '<div class="empty"><p>Sem paradas cadastradas para esta direção</p></div>';
+    return;
+  }
+
+  el.innerHTML = stops.map((s, i) => {
+    const isFirst = i === 0;
+    const isLast = i === stops.length - 1;
+    const circleClass = isFirst ? 'first' : isLast ? 'last' : '';
+    const num = String(i + 1).padStart(2, '0');
+    return `<div class="stop-row">
+      <div class="stop-left">
+        <div class="stop-circle ${circleClass}">${isFirst ? '●' : isLast ? '◉' : num}</div>
+        ${!isLast ? '<div class="stop-connector"></div>' : ''}
+      </div>
+      <div class="stop-body">
+        <div class="stop-name">${toTitleCase(s.parada)}</div>
+        <div class="stop-detail">${toTitleCase(s.ponto)}</div>
+        <div class="stop-bairro">${toTitleCase(s.bairro)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function goBack() {
+  document.getElementById('detail-view').classList.remove('active');
+  document.getElementById('main-view').classList.remove('hidden');
+  currentLine = null;
+}
+
+function filterTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  const tabMap = { 'TODOS': 'tab-all', 'ADM': 'tab-adm', 'TURNO A': 'tab-a', 'TURNO B': 'tab-b', 'TURNO C': 'tab-c' };
+  const el = document.querySelector('.' + tabMap[tab]);
+  if (el) el.classList.add('active');
+  renderLines();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderLines();
+</script>
 </body>
 </html>
