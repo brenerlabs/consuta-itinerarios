@@ -23,7 +23,7 @@
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
 
   header {
     padding: 24px 20px;
@@ -32,17 +32,12 @@
     position: sticky; top: 0; z-index: 100;
   }
 
-  h1 { font-size: 20px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
-  h1 span { color: var(--green); font-size: 12px; background: var(--green-dim); padding: 2px 8px; border-radius: 4px; text-transform: uppercase; }
-
-  .search-container { position: relative; margin-bottom: 16px; }
-  .search-input {
+  .search-container input {
     width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    padding: 14px 18px; border-radius: 14px; color: white; font-size: 15px; outline: none;
+    padding: 14px 18px; border-radius: 14px; color: white; font-size: 15px; outline: none; margin: 15px 0;
   }
 
-  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
-  .tabs::-webkit-scrollbar { display: none; }
+  .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
   .tab {
     padding: 8px 18px; background: var(--surface2); border-radius: 20px;
     font-size: 13px; white-space: nowrap; cursor: pointer; color: var(--muted); border: 1px solid transparent;
@@ -50,182 +45,183 @@
   .tab.active { background: var(--blue-dim); border-color: var(--blue); color: var(--blue); }
 
   .list-container { padding: 20px; display: grid; gap: 12px; }
+  
+  /* ESTILO IGUAL AO ALUMAR-FRETADO (2) */
   .line-card {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 18px; padding: 18px; cursor: pointer;
+    border-radius: 18px; padding: 18px; cursor: pointer; transition: 0.2s;
   }
-  .line-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-  .line-name { font-weight: 600; font-size: 16px; }
-  .line-badge { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface2); padding: 3px 8px; border-radius: 6px; color: var(--blue); }
-  .line-bairros { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .line-card:active { transform: scale(0.98); }
+  .line-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .line-name { font-weight: 600; font-size: 16px; color: var(--text); }
+  .line-badge { font-family: 'DM Mono', monospace; font-size: 10px; background: var(--surface2); padding: 3px 8px; border-radius: 6px; color: var(--blue); font-weight: 600; }
+  .line-bairros { font-size: 13px; color: var(--muted); line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-  /* Detalhes (Expandido) */
+  /* TELA DE DETALHES */
   #detail-view {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: var(--bg); z-index: 200; display: none; flex-direction: column;
   }
   #detail-view.active { display: flex; }
-  .detail-header { padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
-  .btn-back { background: var(--surface2); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; }
+  .nav-bar { padding: 18px 20px; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); }
+  .back-btn { background: var(--surface2); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; font-size: 20px; }
 
-  .toggle-container { display: flex; padding: 15px 20px; gap: 10px; }
-  .btn-toggle { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-weight: 600; }
-  .btn-toggle.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px var(--blue-glow); }
+  .toggle-type { display: flex; padding: 15px 20px; gap: 10px; }
+  .t-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-weight: 600; font-size: 12px; }
+  .t-btn.active { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 4px 12px var(--blue-glow); }
 
-  .stops-list { flex: 1; overflow-y: auto; padding: 20px; }
-  .stop-row { display: flex; gap: 15px; }
+  .stops-container { flex: 1; overflow-y: auto; padding: 20px; }
+  .stop-row { display: flex; gap: 16px; }
   .stop-left { display: flex; flex-direction: column; align-items: center; width: 24px; }
   .stop-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border2); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; background: var(--bg); }
   .stop-circle.first { border-color: var(--blue); color: var(--blue); }
   .stop-circle.last { border-color: var(--green); color: var(--green); }
-  .stop-connector { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 35px; }
+  .stop-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 35px; }
   .stop-body { padding-bottom: 30px; flex: 1; }
-  .stop-parada { font-weight: 600; font-size: 15px; display: flex; align-items: center; gap: 8px; }
-  .label-destino { font-size: 10px; background: var(--green-dim); color: var(--green); padding: 2px 6px; border-radius: 4px; font-weight: 800; }
-  
-  .error-msg { padding: 40px; text-align: center; color: var(--muted); }
+  .stop-title { font-weight: 600; font-size: 15px; margin-bottom: 2px; }
+  .dest-tag { font-size: 10px; background: var(--green-dim); color: var(--green); padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 5px; }
 </style>
 </head>
 <body>
 
 <div id="main-view">
   <header>
-    <h1>Alumar <span>Logística</span></h1>
+    <h1 style="font-size: 20px; font-weight: 600;">Alumar <span style="color:var(--green); font-size:12px; background:var(--green-dim); padding:2px 8px; border-radius:4px;">ITINERÁRIOS</span></h1>
     <div class="search-container">
-      <input type="text" class="search-input" placeholder="Pesquisar linha ou bairro..." oninput="handleSearch(this.value)">
+      <input type="text" placeholder="Buscar linha ou bairro..." oninput="onSearch(this.value)">
     </div>
     <div class="tabs">
-      <div class="tab active" onclick="filterTab('TODOS')">Todos</div>
-      <div class="tab" onclick="filterTab('ADM')">ADM</div>
-      <div class="tab" onclick="filterTab('TURNO A')">Turno A</div>
-      <div class="tab" onclick="filterTab('TURNO B')">Turno B</div>
-      <div class="tab" onclick="filterTab('TURNO C')">Turno C</div>
+      <div class="tab active" onclick="setTab('TODOS', this)">Todos</div>
+      <div class="tab" onclick="setTab('ADM', this)">ADM</div>
+      <div class="tab" onclick="setTab('TURNO A', this)">Turno A</div>
+      <div class="tab" onclick="setTab('TURNO B', this)">Turno B</div>
+      <div class="tab" onclick="setTab('TURNO C', this)">Turno C</div>
     </div>
   </header>
   <div id="linesList" class="list-container">
-    <div class="error-msg">Carregando dados...</div>
+    <div style="text-align:center; padding:50px; color:var(--muted)">Sincronizando pontos...</div>
   </div>
 </div>
 
 <div id="detail-view">
-  <div class="detail-header">
-    <button class="btn-back" onclick="closeLine()">✕</button>
+  <div class="nav-bar">
+    <button class="back-btn" onclick="closeDetail()">✕</button>
     <div>
-      <div id="det-line" style="font-weight: 600;">Linha</div>
-      <div id="det-turno" style="font-size: 11px; color: var(--blue); font-weight: 600;">TURNO</div>
+      <div id="det-line-name" style="font-weight: 600; font-size: 16px;">Nome da Linha</div>
+      <div id="det-line-turno" style="font-size: 11px; color: var(--blue); font-weight: 600; text-transform: uppercase;">TURNO</div>
     </div>
   </div>
-  <div class="toggle-container">
-    <button id="btn-ida" class="btn-toggle active" onclick="setTipo('IDA')">SENTIDO ALUMAR</button>
-    <button id="btn-volta" class="btn-toggle" onclick="setTipo('VOLTA')">SENTIDO BAIRRO</button>
+  <div class="toggle-type">
+    <button id="btn-ida" class="t-btn active" onclick="changeType('IDA')">SENTIDO ALUMAR</button>
+    <button id="btn-volta" class="t-btn" onclick="changeType('VOLTA')">SENTIDO BAIRRO</button>
   </div>
-  <div class="stops-list" id="stopsList"></div>
+  <div class="stops-container" id="stopsList"></div>
 </div>
 
 <script>
-let RAW_DATA = [];
-let LINES = [];
-let activeTab = 'TODOS';
-let searchQuery = '';
-let currentLine = null;
-let currentTipo = 'IDA';
+let DATA_MASTER = [];
+let FILTERED_GROUPS = [];
+let currentFilter = 'TODOS';
+let currentSearch = '';
+let selectedGroup = null;
+let selectedType = 'IDA';
 
-// 1. CARREGAR CSV COM SUPORTE A ACENTOS (ISO-8859-1 / Windows-1252)
-async function loadCSV() {
+// 1. CARREGAR E CORRIGIR ACENTOS
+async function init() {
   try {
-    const response = await fetch('pontos.csv');
-    if (!response.ok) throw new Error();
-    
-    // Aqui está o segredo para os acentos: ler como arrayBuffer e decodificar
-    const buffer = await response.arrayBuffer();
-    const decoder = new TextDecoder('iso-8859-1'); // Formato padrão do Excel Brasileiro
-    const csvText = decoder.decode(buffer);
-    
-    parseCSV(csvText);
+    const res = await fetch('pontos.csv');
+    const arrayBuffer = await res.arrayBuffer();
+    // Decodificador para aceitar acentos do Excel (Windows-1252/ISO-8859-1)
+    const decoder = new TextDecoder('windows-1252');
+    const text = decoder.decode(arrayBuffer);
+    parse(text);
   } catch (e) {
-    document.getElementById('linesList').innerHTML = `<div class="error-msg" style="color:#ff6b6b">Erro ao carregar pontos.csv. Certifique-se que o arquivo está na pasta e você está usando o GitHub Pages.</div>`;
+    document.getElementById('linesList').innerHTML = '<div style="color:red; padding:20px;">Erro ao ler pontos.csv. Use o GitHub Pages para testar.</div>';
   }
 }
 
-function parseCSV(text) {
-  const rows = text.split(/\r?\n/);
-  RAW_DATA = [];
-  for (let i = 1; i < rows.length; i++) {
-    const cols = rows[i].split(',');
-    if (cols.length >= 6) {
-      RAW_DATA.push({
-        turno: cols[0].trim(),
-        linha: cols[1].trim(),
-        tipo: cols[2].trim().toUpperCase(),
-        bairro: cols[3].trim(),
-        ponto: cols[4].trim(),
-        parada: cols[5].trim()
+function parse(csv) {
+  const lines = csv.split(/\r?\n/);
+  DATA_MASTER = [];
+  for (let i = 1; i < lines.length; i++) {
+    const c = lines[i].split(',');
+    if (c.length >= 6) {
+      DATA_MASTER.push({
+        turno: c[0].trim(),
+        linha: c[1].trim(),
+        tipo: c[2].trim().toUpperCase(),
+        bairro: c[3].trim(),
+        ponto: c[4].trim(),
+        parada: c[5].trim()
       });
     }
   }
-  processData();
-  renderLines();
+  group();
+  render();
 }
 
-function processData() {
-  const map = {};
-  RAW_DATA.forEach(r => {
-    const key = `${r.turno}|${r.linha}`;
-    if (!map[key]) map[key] = { turno: r.turno, linha: r.linha, stops: {}, bairros: new Set() };
-    if (!map[key].stops[r.tipo]) map[key].stops[r.tipo] = [];
-    map[key].stops[r.tipo].push(r);
-    map[key].bairros.add(r.bairro);
+function group() {
+  const m = {};
+  DATA_MASTER.forEach(d => {
+    const key = `${d.turno}|${d.linha}`;
+    if (!m[key]) m[key] = { turno: d.turno, linha: d.linha, tipos: {}, bairros: new Set() };
+    if (!m[key].tipos[d.tipo]) m[key].tipos[d.tipo] = [];
+    m[key].tipos[d.tipo].push(d);
+    m[key].bairros.add(d.bairro);
   });
-  LINES = Object.values(map);
+  FILTERED_GROUPS = Object.values(m);
 }
 
-function renderLines() {
+// 2. RENDERIZAR LISTA PRINCIPAL
+function render() {
   const container = document.getElementById('linesList');
-  const filtered = LINES.filter(l => {
-    const mTab = activeTab === 'TODOS' || l.turno === activeTab;
-    const mSearch = l.linha.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                    Array.from(l.bairros).join(' ').toLowerCase().includes(searchQuery.toLowerCase());
-    return mTab && mSearch;
+  const list = FILTERED_GROUPS.filter(g => {
+    const matchTab = currentFilter === 'TODOS' || g.turno === currentFilter;
+    const matchSearch = g.linha.toLowerCase().includes(currentSearch.toLowerCase()) || 
+                        Array.from(g.bairros).join(' ').toLowerCase().includes(currentSearch.toLowerCase());
+    return matchTab && matchSearch;
   });
 
-  container.innerHTML = filtered.map(l => `
-    <div class="line-card" onclick="openLine('${l.turno}|${l.linha}')">
+  container.innerHTML = list.map(g => `
+    <div class="line-card" onclick="openDetail('${g.turno}|${g.linha}')">
       <div class="line-header">
-        <div class="line-name">${l.linha}</div>
-        <div class="line-badge">${l.turno}</div>
+        <div class="line-name">${g.linha}</div>
+        <div class="line-badge">${g.turno}</div>
       </div>
-      <div class="line-bairros">${Array.from(l.bairros).join(' • ')}</div>
+      <div class="line-bairros">${Array.from(g.bairros).join(' • ')}</div>
     </div>
   `).join('');
 }
 
-// 2. FUNÇÕES DE EXPANDIR (DETALHES)
-function openLine(id) {
-  currentLine = LINES.find(l => `${l.turno}|${l.linha}` === id);
-  currentTipo = 'IDA';
-  document.getElementById('det-line').innerText = currentLine.linha;
-  document.getElementById('det-turno').innerText = currentLine.turno;
+// 3. FUNÇÃO EXPANDIR (CORRIGIDA)
+function openDetail(id) {
+  selectedGroup = FILTERED_GROUPS.find(g => `${g.turno}|${g.linha}` === id);
+  selectedType = 'IDA';
+  
+  document.getElementById('det-line-name').innerText = selectedGroup.linha;
+  document.getElementById('det-line-turno').innerText = selectedGroup.turno;
   document.getElementById('detail-view').classList.add('active');
+  
   renderStops();
 }
 
 function renderStops() {
-  const list = currentLine.stops[currentTipo] || [];
+  const stops = selectedGroup.tipos[selectedType] || [];
   const container = document.getElementById('stopsList');
   
-  container.innerHTML = list.map((s, i) => {
+  container.innerHTML = stops.map((s, i) => {
     const isFirst = i === 0;
-    const isLast = i === list.length - 1;
-    let label = isLast ? (currentTipo === 'IDA' ? '<span class="label-destino">FÁBRICA</span>' : '<span class="label-destino">RESIDÊNCIA</span>') : '';
+    const isLast = i === stops.length - 1;
+    const tag = isLast ? `<span class="dest-tag">${selectedType === 'IDA' ? 'FÁBRICA' : 'RESIDÊNCIA'}</span>` : '';
 
     return `
       <div class="stop-row">
         <div class="stop-left">
           <div class="stop-circle ${isFirst?'first':isLast?'last':''}">${isFirst?'●':isLast?'◉':String(i+1).padStart(2,'0')}</div>
-          ${!isLast ? '<div class="stop-connector"></div>' : ''}
+          ${!isLast ? '<div class="stop-line"></div>' : ''}
         </div>
         <div class="stop-body">
-          <div class="stop-parada">${toTitle(s.parada)} ${label}</div>
+          <div class="stop-title">${toTitle(s.parada)} ${tag}</div>
           <div style="font-size:13px; color:var(--muted)">${toTitle(s.ponto)}</div>
           <div style="font-size:11px; color:var(--hint); text-transform:uppercase; margin-top:2px;">${toTitle(s.bairro)}</div>
         </div>
@@ -233,23 +229,24 @@ function renderStops() {
   }).join('');
 }
 
-// 3. CONTROLES
-function setTipo(t) {
-  currentTipo = t;
+// CONTROLES
+function changeType(t) {
+  selectedType = t;
   document.getElementById('btn-ida').classList.toggle('active', t === 'IDA');
   document.getElementById('btn-volta').classList.toggle('active', t === 'VOLTA');
   renderStops();
 }
-function handleSearch(v) { searchQuery = v; renderLines(); }
-function filterTab(tab) {
-  activeTab = tab;
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.innerText.toUpperCase() === tab));
-  renderLines();
+function onSearch(v) { currentSearch = v; render(); }
+function setTab(t, el) {
+  currentFilter = t;
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  el.classList.add('active');
+  render();
 }
-function closeLine() { document.getElementById('detail-view').classList.remove('active'); }
+function closeDetail() { document.getElementById('detail-view').classList.remove('active'); }
 function toTitle(s) { return s.toLowerCase().replace(/(^\w|\s\w)/g, m => m.toUpperCase()); }
 
-window.onload = loadCSV;
+window.onload = init;
 </script>
 </body>
 </html>
