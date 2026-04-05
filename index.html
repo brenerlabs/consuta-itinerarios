@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumar Fretado - Busca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background-color: #0b1120; color: #f8fafc; }
+        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
+        .line-indicator { border-left: 2px solid #334155; position: relative; }
+        .stop-dot { position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 2px solid #0b1120; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="bg-blue-600 p-3 rounded-xl">
+                <i class="fa-solid fa-paper-plane text-white text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold">Alumar Fretado</h1>
+                <p class="text-gray-400 text-sm">Encontre seu ônibus</p>
+            </div>
+        </div>
+
+        <div class="relative mb-6">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-500"></i>
+            <input type="text" id="searchInput" placeholder="Busque por rua, bairro ou linha..." 
+                class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+
+        <div class="flex gap-2 mb-8 overflow-x-auto pb-2" id="filterButtons">
+            <button onclick="filterType('Todos')" class="btn-filter bg-blue-600 px-6 py-2 rounded-full text-sm font-medium">Todos</button>
+            <button onclick="filterType('ADM')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">ADM</button>
+            <button onclick="filterType('TURNO A')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">Turno A</button>
+            <button onclick="filterType('TURNO B')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">Turno B</button>
+            <button onclick="filterType('TURNO C')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">Turno C</button>
+        </div>
+
+        <div id="resultsArea" class="space-y-4">
+            </div>
+    </div>
+
+    <script>
+        let allData = [];
+        let currentFilter = 'Todos';
+
+        // 1. Carregar dados do arquivo pontos.json
+        async function loadData() {
+            try {
+                const response = await fetch('pontos.json');
+                allData = await response.json();
+                renderResults(allData);
+            } catch (error) {
+                console.error("Erro ao carregar pontos.json:", error);
+                document.getElementById('resultsArea').innerHTML = "<p class='text-red-400'>Erro ao carregar base de dados.</p>";
+            }
+        }
+
+        // 2. Função de Filtro por Tipo (Botões)
+        function filterType(type) {
+            currentFilter = type;
+            document.querySelectorAll('.btn-filter').forEach(btn => {
+                btn.classList.replace('bg-blue-600', 'bg-slate-800');
+            });
+            event.target.classList.replace('bg-slate-800', 'bg-blue-600');
+            handleSearch();
+        }
+
+        // 3. Lógica de Busca e Filtro Combinados
+        function handleSearch() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            
+            const filtered = allData.filter(item => {
+                const matchesType = currentFilter === 'Todos' || item.tipo === currentFilter;
+                const matchesTerm = item.identificador.toLowerCase().includes(term) ||
+                                   item.itinerario.toLowerCase().includes(term) ||
+                                   item.paradas.some(p => p.nome.toLowerCase().includes(term) || p.rua.toLowerCase().includes(term) || p.bairro.toLowerCase().includes(term));
+                
+                return matchesType && matchesTerm;
+            });
+
+            renderResults(filtered);
+        }
+
+        // 4. Renderizar na Tela
+        function renderResults(data) {
+            const container = document.getElementById('resultsArea');
+            container.innerHTML = '';
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glass-card p-6 rounded-3xl border border-slate-700/50 mb-6';
+                
+                card.innerHTML = `
+                    <div class="mb-4">
+                        <span class="text-blue-400 text-xs font-bold uppercase tracking-wider">${item.tipo}</span>
+                        <h2 class="text-2xl font-bold mt-1">${item.identificador}</h2>
+                        <p class="text-gray-400 text-xs mt-2 uppercase">${item.itinerario}</p>
+                    </div>
+                    
+                    <div class="mt-6 ml-2 space-y-8 line-indicator">
+                        ${item.paradas.map((p, idx) => `
+                            <div class="pl-6 relative">
+                                <div class="stop-dot"></div>
+                                <h3 class="text-sm font-semibold">${p.nome}</h3>
+                                <p class="text-gray-500 text-xs">${p.rua}</p>
+                                <p class="text-blue-400/70 text-[10px] uppercase">${p.bairro}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', handleSearch);
+        window.onload = loadData;
+    </script>
+</body>
+</html>
