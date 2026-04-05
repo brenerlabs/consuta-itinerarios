@@ -7,108 +7,118 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { background-color: #0b1120; color: #f8fafc; }
-        .glass-card { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
+        body { background-color: #0b1120; color: #f8fafc; font-family: sans-serif; }
+        .glass-card { background: rgba(30, 41, 59, 0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
         .line-indicator { border-left: 2px solid #334155; position: relative; }
         .stop-dot { position: absolute; left: -7px; width: 12px; height: 12px; border-radius: 50%; background: #3b82f6; border: 2px solid #0b1120; }
+        .btn-active { background-color: #2563eb !important; color: white; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
     </style>
 </head>
 <body class="p-4 md:p-8">
 
     <div class="max-w-2xl mx-auto">
         <div class="flex items-center gap-4 mb-6">
-            <div class="bg-blue-600 p-3 rounded-xl">
+            <div class="bg-blue-600 p-3 rounded-xl shadow-lg shadow-blue-900/20">
                 <i class="fa-solid fa-paper-plane text-white text-xl"></i>
             </div>
             <div>
-                <h1 class="text-xl font-bold">Alumar Fretado</h1>
+                <h1 class="text-xl font-bold uppercase tracking-tight">Alumar Fretado</h1>
                 <p class="text-gray-400 text-sm">Encontre seu ônibus</p>
             </div>
         </div>
 
         <div class="relative mb-6">
             <i class="fa-solid fa-magnifying-glass absolute left-4 top-4 text-gray-500"></i>
-            <input type="text" id="searchInput" placeholder="Busque por rua, bairro ou linha..." 
-                class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="searchInput" placeholder="Busque por rua, bairro ou linha (ex: Cohama)..." 
+                class="w-full bg-slate-800/50 border border-slate-700 rounded-2xl py-3 px-12 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all">
         </div>
 
-        <div class="flex gap-2 mb-8 overflow-x-auto pb-2" id="filterButtons">
-            <button onclick="filterType('Todos')" class="btn-filter bg-blue-600 px-6 py-2 rounded-full text-sm font-medium">Todos</button>
-            <button onclick="filterType('ADM')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">ADM</button>
-            <button onclick="filterType('TURNO A')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">Turno A</button>
-            <button onclick="filterType('TURNO B')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">Turno B</button>
-            <button onclick="filterType('TURNO C')" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium hover:bg-slate-700">Turno C</button>
+        <div class="flex gap-2 mb-8 overflow-x-auto pb-2" id="filterContainer">
+            <button onclick="filterType('Todos', this)" class="btn-filter btn-active bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Todos</button>
+            <button onclick="filterType('ADM', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">ADM</button>
+            <button onclick="filterType('TURNO A', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Turno A</button>
+            <button onclick="filterType('TURNO B', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Turno B</button>
+            <button onclick="filterType('TURNO C', this)" class="btn-filter bg-slate-800 px-6 py-2 rounded-full text-sm font-medium whitespace-nowrap">Turno C</button>
         </div>
 
-        <div id="resultsArea" class="space-y-4">
+        <div id="resultsArea" class="space-y-6">
             </div>
     </div>
 
     <script>
-        let allData = [];
+        // DADOS CONSOLIDADOS DO SEU EXCEL
+        const data = [
+            {
+                tipo: "ADM",
+                linha: "LINHA 03",
+                itinerario: "COHAMA · RESIDENCIAL ARARAS · RESIDENCIAL PINHEIROS · MARANHÃO NOVO · IPASE",
+                pontos: [
+                    { nome: "Cond. Ditalli", rua: "Rua do Aririzal", bairro: "Cohama" },
+                    { nome: "Cond. Green Blue", rua: "Rua do Aririzal", bairro: "Cohama" },
+                    { nome: "Cond. Village das Palmeiras", rua: "Rua do Aririzal", bairro: "Cohama" },
+                    { nome: "Dimensão Engenharia", rua: "Rua do Aririzal", bairro: "Cohama" },
+                    { nome: "Comercial Padilha", rua: "Avenida Um", bairro: "Residencial Araras" }
+                ]
+            },
+            {
+                tipo: "TURNO A",
+                linha: "ROTA 01",
+                itinerario: "SÃO CRISTÓVÃO · CIDADE OPERÁRIA",
+                pontos: [
+                    { nome: "Posto Shell", rua: "Av. Guajajaras", bairro: "São Cristóvão" },
+                    { nome: "Supermercado Caminho", rua: "Av. Principal", bairro: "Cidade Operária" }
+                ]
+            }
+            // Adicione mais rotas seguindo este padrão conforme necessário
+        ];
+
         let currentFilter = 'Todos';
 
-        // 1. Carregar dados do arquivo pontos.json
-        async function loadData() {
-            try {
-                const response = await fetch('pontos.json');
-                allData = await response.json();
-                renderResults(allData);
-            } catch (error) {
-                console.error("Erro ao carregar pontos.json:", error);
-                document.getElementById('resultsArea').innerHTML = "<p class='text-red-400'>Erro ao carregar base de dados.</p>";
-            }
-        }
-
-        // 2. Função de Filtro por Tipo (Botões)
-        function filterType(type) {
-            currentFilter = type;
-            document.querySelectorAll('.btn-filter').forEach(btn => {
-                btn.classList.replace('bg-blue-600', 'bg-slate-800');
-            });
-            event.target.classList.replace('bg-slate-800', 'bg-blue-600');
-            handleSearch();
-        }
-
-        // 3. Lógica de Busca e Filtro Combinados
-        function handleSearch() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            
-            const filtered = allData.filter(item => {
-                const matchesType = currentFilter === 'Todos' || item.tipo === currentFilter;
-                const matchesTerm = item.identificador.toLowerCase().includes(term) ||
-                                   item.itinerario.toLowerCase().includes(term) ||
-                                   item.paradas.some(p => p.nome.toLowerCase().includes(term) || p.rua.toLowerCase().includes(term) || p.bairro.toLowerCase().includes(term));
-                
-                return matchesType && matchesTerm;
-            });
-
-            renderResults(filtered);
-        }
-
-        // 4. Renderizar na Tela
-        function renderResults(data) {
+        function render(filterTerm = "", type = "Todos") {
             const container = document.getElementById('resultsArea');
-            container.innerHTML = '';
+            container.innerHTML = "";
 
-            data.forEach(item => {
+            const filtered = data.filter(item => {
+                const matchType = type === "Todos" || item.tipo === type;
+                const search = filterTerm.toLowerCase();
+                const matchSearch = item.linha.toLowerCase().includes(search) || 
+                                    item.itinerario.toLowerCase().includes(search) ||
+                                    item.pontos.some(p => p.nome.toLowerCase().includes(search) || p.bairro.toLowerCase().includes(search));
+                return matchType && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="text-center py-10 text-gray-500">Nenhum ônibus encontrado para sua busca.</div>`;
+                return;
+            }
+
+            filtered.forEach(item => {
                 const card = document.createElement('div');
-                card.className = 'glass-card p-6 rounded-3xl border border-slate-700/50 mb-6';
-                
+                card.className = "glass-card p-6 rounded-3xl transition-all hover:border-blue-500/50";
                 card.innerHTML = `
-                    <div class="mb-4">
-                        <span class="text-blue-400 text-xs font-bold uppercase tracking-wider">${item.tipo}</span>
-                        <h2 class="text-2xl font-bold mt-1">${item.identificador}</h2>
-                        <p class="text-gray-400 text-xs mt-2 uppercase">${item.itinerario}</p>
+                    <div class="mb-6">
+                        <div class="flex justify-between items-start">
+                            <span class="bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-1 rounded-md uppercase">${item.tipo} · ${item.linha.includes('LINHA') ? 'ADM' : 'TURNO'}</span>
+                        </div>
+                        <h2 class="text-2xl font-bold mt-2">${item.linha}</h2>
+                        <p class="text-gray-400 text-[10px] mt-1 uppercase leading-tight tracking-wider">${item.itinerario}</p>
+                    </div>
+
+                    <div class="flex gap-2 mb-6">
+                        <button class="flex-1 bg-blue-600 text-xs font-bold py-2 rounded-xl">→ Ida (cidade → fábrica)</button>
+                        <button class="flex-1 bg-slate-800 text-xs font-bold py-2 rounded-xl text-gray-400">← Volta (fábrica → cidade)</button>
                     </div>
                     
-                    <div class="mt-6 ml-2 space-y-8 line-indicator">
-                        ${item.paradas.map((p, idx) => `
+                    <div class="ml-2 space-y-8 line-indicator">
+                        ${item.pontos.map((p, idx) => `
                             <div class="pl-6 relative">
                                 <div class="stop-dot"></div>
+                                <div class="absolute -left-8 top-0 text-[10px] font-bold text-gray-600">${(idx + 1).toString().padStart(2, '0')}</div>
                                 <h3 class="text-sm font-semibold">${p.nome}</h3>
                                 <p class="text-gray-500 text-xs">${p.rua}</p>
-                                <p class="text-blue-400/70 text-[10px] uppercase">${p.bairro}</p>
+                                <p class="text-blue-400/60 text-[10px] uppercase font-bold">${p.bairro}</p>
                             </div>
                         `).join('')}
                     </div>
@@ -117,8 +127,19 @@
             });
         }
 
-        document.getElementById('searchInput').addEventListener('input', handleSearch);
-        window.onload = loadData;
+        function filterType(type, btn) {
+            currentFilter = type;
+            document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('btn-active'));
+            btn.classList.add('btn-active');
+            render(document.getElementById('searchInput').value, type);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            render(e.target.value, currentFilter);
+        });
+
+        // Inicializar
+        render();
     </script>
 </body>
 </html>
